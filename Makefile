@@ -10,7 +10,7 @@ run:
 
 build: main.go
 	@mkdir -p $(BUILD_DIR)
-	go build -o $(TARGET) main.go
+	go build -v -o $(TARGET) .
 	@echo "Successfully build target at $(TARGET)"
 
 clean:
