@@ -1,16 +1,14 @@
 package sim
 
 import (
+	"math"
 	"math/rand"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type Boid struct {
-	CurPos rl.Vector2
-	// Angle stores the boid's current Angle in degrees
-	Angle  float32
-
+	CurPos       rl.Vector2
 	Velocity     rl.Vector2
 	Acceleration rl.Vector2
 
@@ -28,30 +26,49 @@ func NewBoid() *Boid {
 		randRange(0, WindowHeight),
 	)
 
+	randAngle := randRange(0, 360) * rl.Deg2rad
+	dir_vec := rl.NewVector2(
+		float32(math.Cos(float64(randAngle))),
+		float32(math.Sin(float64(randAngle))),
+	)
+	speed := randRange(0.1, VelocityLimit)
+
 	newBoid := Boid{
-		CurPos: randPos,
-		Angle: randRange(0, 360),
+		CurPos:   randPos,
+		Velocity: rl.Vector2Scale(dir_vec, speed),
 	}
 
 	return &newBoid
 }
 
+func (boid *Boid) Update() {
+	boid.CurPos = rl.Vector2Add(boid.CurPos, boid.Velocity)
+}
+
 func (boid Boid) Draw(offset float32, color rl.Color) {
-	angleRad := boid.Angle * rl.Deg2rad
+	// Triangle is defined with tip pointing up (-Y). To align with velocity
+	// direction, compute angle from velocity vector and rotate triangle by
+	// (angle + pi/2) to correct for orientation mismatch.
+	angleRad := float32(math.Atan2(float64(boid.Velocity.Y), float64(boid.Velocity.X))) + rl.Pi/2
 	halfSize := offset / 2
 
-	localVertices := []rl.Vector2 {
+	relativeVertices := []rl.Vector2{
 		rl.NewVector2(0, -offset),
 		rl.NewVector2(-halfSize, halfSize),
 		rl.NewVector2(halfSize, halfSize),
 	}
 
-	for i := range localVertices {
-		localVertices[i] = rl.Vector2Add(
+	for i := range relativeVertices {
+		relativeVertices[i] = rl.Vector2Add(
 			boid.CurPos,
-			rl.Vector2Rotate(localVertices[i], angleRad),
+			rl.Vector2Rotate(relativeVertices[i], angleRad),
 		)
 	}
 
-	rl.DrawTriangle(localVertices[0], localVertices[1], localVertices[2], color)
+	rl.DrawTriangle(
+		relativeVertices[0],
+		relativeVertices[1],
+		relativeVertices[2],
+		color,
+	)
 }
