@@ -43,6 +43,21 @@ func NewBoid() *Boid {
 
 func (boid *Boid) Update() {
 	boid.CurPos = rl.Vector2Add(boid.CurPos, boid.Velocity)
+	boid.wrap()
+}
+
+func (boid *Boid) wrap()  {
+	if boid.CurPos.X > WindowWidth {
+		boid.CurPos.X -= WindowWidth
+	} else if boid.CurPos.X < 0 {
+		boid.CurPos.X += WindowWidth
+	}
+
+	if boid.CurPos.Y > WindowHeight {
+		boid.CurPos.Y -= WindowHeight
+	} else if boid.CurPos.Y < 0 {
+		boid.CurPos.Y += WindowHeight
+	}
 }
 
 func (boid Boid) Draw(offset float32, color rl.Color) {
