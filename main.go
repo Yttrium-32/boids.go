@@ -18,7 +18,7 @@ func main() {
 
 	for !rl.WindowShouldClose() {
 		for _, boid := range flock {
-			boid.Update()
+			boid.Update(flock)
 		}
 
 		rl.BeginDrawing()

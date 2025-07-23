@@ -41,7 +41,7 @@ func NewBoid() *Boid {
 	return &newBoid
 }
 
-func (boid *Boid) Update() {
+func (boid *Boid) Update(flock []*Boid) {
 	boid.CurPos = rl.Vector2Add(boid.CurPos, boid.Velocity)
 	boid.Velocity = rl.Vector2Add(boid.Velocity, boid.Acceleration)
 
@@ -54,10 +54,32 @@ func (boid *Boid) Update() {
 		boid.Velocity = rl.Vector2MoveTowards(boid.Velocity, target, step)
 	}
 
+	boid.FindLocalFlock(flock)
+
+	boid.align(boid.avgVelocity())
+
+	// Only steer boid if steering vectors are applied
+	amountSteeringVecs := len(boid.SteeringVectors)
+	if amountSteeringVecs != 0 {
+		avgSteeringVector := rl.Vector2Zero()
+
+		for _, vec := range boid.SteeringVectors {
+			avgSteeringVector = rl.Vector2Add(avgSteeringVector, vec)
+		}
+
+		boid.Acceleration = rl.Vector2Scale(
+			avgSteeringVector,
+			1.0/float32(amountSteeringVecs),
+		)
+
+		// Remove all applied steering vectors
+		boid.SteeringVectors = boid.SteeringVectors[:0]
+	}
+
 	boid.wrap()
 }
 
-func (boid *Boid) wrap()  {
+func (boid *Boid) wrap() {
 	if boid.CurPos.X > WindowWidth {
 		boid.CurPos.X -= WindowWidth
 	} else if boid.CurPos.X < 0 {
@@ -68,6 +90,64 @@ func (boid *Boid) wrap()  {
 		boid.CurPos.Y -= WindowHeight
 	} else if boid.CurPos.Y < 0 {
 		boid.CurPos.Y += WindowHeight
+	}
+}
+
+func (boid *Boid) FindLocalFlock(flock []*Boid) {
+	for _, other_boid := range flock {
+		if boid == other_boid {
+			continue
+		}
+
+		if rl.Vector2Distance(boid.CurPos, other_boid.CurPos) > PerceptionRadius {
+			continue
+		}
+
+		angle_to_other_boid := rl.Vector2Angle(boid.Velocity, other_boid.Velocity)
+		is_visible := angle_to_other_boid < BlindSpotAngle || angle_to_other_boid > 360-BlindSpotAngle
+
+		if is_visible {
+			boid.LocalFlock = append(boid.LocalFlock, *other_boid)
+		}
+	}
+}
+
+func (boid Boid) avgVelocity() rl.Vector2 {
+	localFlockSize := len(boid.LocalFlock)
+	avgVelocity := rl.Vector2Zero()
+
+	if localFlockSize == 0 {
+		return avgVelocity
+	}
+
+	for _, other_boid := range boid.LocalFlock {
+		avgVelocity = rl.Vector2Add(avgVelocity, other_boid.Velocity)
+	}
+
+	avgVelocity = rl.Vector2Scale(avgVelocity, 1.0/float32(localFlockSize))
+	return avgVelocity
+}
+
+func (boid Boid) avgPosition() rl.Vector2 {
+	localFlockSize := len(boid.LocalFlock)
+	avgPosition := rl.Vector2Zero()
+
+	if localFlockSize == 0 {
+		return avgPosition
+	}
+
+	for _, other_boid := range boid.LocalFlock {
+		avgPosition = rl.Vector2Add(avgPosition, other_boid.CurPos)
+	}
+
+	avgPosition = rl.Vector2Scale(avgPosition, 1.0/float32(localFlockSize))
+	return avgPosition
+}
+
+func (boid *Boid) align(avgVelocity rl.Vector2) {
+	if rl.Vector2Length(avgVelocity) != 0 {
+		steeringVec := rl.Vector2Subtract(avgVelocity, boid.Velocity)
+		boid.SteeringVectors = append(boid.SteeringVectors, steeringVec)
 	}
 }
 
