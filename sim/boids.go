@@ -37,7 +37,7 @@ func NewBoid() *Boid {
 }
 
 func (boid Boid) Draw(offset float32, color rl.Color) {
-	angle_rad := boid.Angle * rl.Deg2rad
+	angleRad := boid.Angle * rl.Deg2rad
 	halfSize := offset / 2
 
 	localVertices := []rl.Vector2 {
@@ -49,7 +49,7 @@ func (boid Boid) Draw(offset float32, color rl.Color) {
 	for i := range localVertices {
 		localVertices[i] = rl.Vector2Add(
 			boid.CurPos,
-			rl.Vector2Rotate(localVertices[i], angle_rad),
+			rl.Vector2Rotate(localVertices[i], angleRad),
 		)
 	}
 
