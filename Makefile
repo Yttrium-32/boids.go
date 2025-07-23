@@ -1,5 +1,6 @@
 BUILD_DIR := build
 TARGET := $(BUILD_DIR)/boids
+FILES := main.go sim/boids.go sim/config.go
 
 .PHONY: run all clean cache
 
@@ -8,9 +9,9 @@ all: build run
 run:
 	./$(TARGET)
 
-build: main.go
+build: $(FILES)
 	@mkdir -p $(BUILD_DIR)
-	go build -v -o $(TARGET) .
+	go build -v -o $(TARGET)
 	@echo "Successfully build target at $(TARGET)"
 
 clean:
