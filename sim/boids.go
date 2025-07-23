@@ -43,6 +43,17 @@ func NewBoid() *Boid {
 
 func (boid *Boid) Update() {
 	boid.CurPos = rl.Vector2Add(boid.CurPos, boid.Velocity)
+	boid.Velocity = rl.Vector2Add(boid.Velocity, boid.Acceleration)
+
+	// Smoothly de-accelerate towards velocity limit
+	speed := rl.Vector2Length(boid.Velocity)
+	if speed > VelocityLimit {
+		target := rl.Vector2Scale(rl.Vector2Normalize(boid.Velocity), VelocityLimit)
+		step := (speed - VelocityLimit) * DampingFactor
+
+		boid.Velocity = rl.Vector2MoveTowards(boid.Velocity, target, step)
+	}
+
 	boid.wrap()
 }
 

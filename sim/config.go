@@ -7,6 +7,7 @@ const (
 	BlindSpotAngle   = 60
 	PerceptionRadius = 50
 	VelocityLimit    = 3
+	DampingFactor    = 0.1
 
 	TotalFlockSize = 100
 	BoidSize       = 7
