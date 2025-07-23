@@ -20,7 +20,7 @@ func main() {
 		rl.ClearBackground(rl.Black)
 
 		for _, boid := range flock {
-			boid.Draw(7, rl.RayWhite)
+			boid.Draw(sim.BoidSize, rl.RayWhite)
 		}
 
 		rl.EndDrawing()

@@ -7,12 +7,15 @@ import (
 )
 
 type Boid struct {
-	curPos       rl.Vector2
-	velocity     rl.Vector2
-	acceleration rl.Vector2
+	CurPos rl.Vector2
+	// Angle stores the boid's current Angle in degrees
+	Angle  float32
 
-	localFlock      []Boid
-	steeringVectors []rl.Vector2
+	Velocity     rl.Vector2
+	Acceleration rl.Vector2
+
+	LocalFlock      []Boid
+	SteeringVectors []rl.Vector2
 }
 
 func randRange(min, max float32) float32 {
@@ -26,18 +29,29 @@ func NewBoid() *Boid {
 	)
 
 	newBoid := Boid{
-		curPos: randPos,
+		CurPos: randPos,
+		Angle: randRange(0, 360),
 	}
 
 	return &newBoid
 }
 
 func (boid Boid) Draw(offset float32, color rl.Color) {
+	angle_rad := boid.Angle * rl.Deg2rad
 	halfSize := offset / 2
 
-	vertex1 := rl.NewVector2(boid.curPos.X, boid.curPos.Y - offset)
-	vertex2 := rl.NewVector2(boid.curPos.X - halfSize, boid.curPos.Y + halfSize)
-	vertex3 := rl.NewVector2(boid.curPos.X + halfSize, boid.curPos.Y + halfSize)
+	localVertices := []rl.Vector2 {
+		rl.NewVector2(0, -offset),
+		rl.NewVector2(-halfSize, halfSize),
+		rl.NewVector2(halfSize, halfSize),
+	}
 
-	rl.DrawTriangle(vertex1, vertex2, vertex3, color)
+	for i := range localVertices {
+		localVertices[i] = rl.Vector2Add(
+			boid.CurPos,
+			rl.Vector2Rotate(localVertices[i], angle_rad),
+		)
+	}
+
+	rl.DrawTriangle(localVertices[0], localVertices[1], localVertices[2], color)
 }

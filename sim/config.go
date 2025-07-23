@@ -9,4 +9,5 @@ const (
 	VelocityLimit    = 3
 
 	TotalFlockSize = 100
+	BoidSize       = 7
 )
