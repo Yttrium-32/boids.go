@@ -43,7 +43,10 @@ func NewBoid() *Boid {
 
 func (boid *Boid) Update(flock []*Boid) {
 	boid.FindLocalFlock(flock)
+
 	boid.align(boid.avgVelocity())
+	boid.cohesion(boid.avgPosition())
+	boid.separation()
 
 	amountSteeringVecs := len(boid.SteeringVectors)
 	avgSteeringVector := rl.Vector2Zero()
@@ -151,6 +154,30 @@ func (boid *Boid) align(avgVelocity rl.Vector2) {
 		steeringVec := rl.Vector2Subtract(avgVelocity, boid.Velocity)
 		boid.SteeringVectors = append(boid.SteeringVectors, steeringVec)
 	}
+}
+
+func (boid *Boid) cohesion(avgPosition rl.Vector2)  {
+	if rl.Vector2Length(avgPosition) != 0 {
+		steeringVec := rl.Vector2Subtract(avgPosition, boid.CurPos)
+
+		// Prevent cohesion from overwhelming other vectors
+		steeringVec = rl.Vector2ClampValue(steeringVec, 0.1, VelocityLimit/1.5)
+		boid.SteeringVectors = append(boid.SteeringVectors, steeringVec)
+	}
+}
+
+ func (boid *Boid) separation() {
+	 if len(boid.LocalFlock) == 0 {
+		 return
+	 }
+
+	 for _, other_boid := range boid.LocalFlock {
+		 distance := rl.Vector2Distance(boid.CurPos, other_boid.CurPos)
+		 directionAway := rl.Vector2Subtract(boid.CurPos, other_boid.CurPos)
+
+		 separationVec := rl.Vector2Scale(directionAway, 1.0/distance)
+		 boid.SteeringVectors = append(boid.SteeringVectors, separationVec)
+	 }
 }
 
 func (boid *Boid) DrawPerceptionField(color rl.Color) {
