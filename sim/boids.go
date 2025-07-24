@@ -42,7 +42,26 @@ func NewBoid() *Boid {
 }
 
 func (boid *Boid) Update(flock []*Boid) {
-	boid.CurPos = rl.Vector2Add(boid.CurPos, boid.Velocity)
+	boid.FindLocalFlock(flock)
+	boid.align(boid.avgVelocity())
+
+	amountSteeringVecs := len(boid.SteeringVectors)
+	avgSteeringVector := rl.Vector2Zero()
+
+	// Only steer boid if steering vectors are applied
+	if amountSteeringVecs != 0 {
+		for _, vec := range boid.SteeringVectors {
+			avgSteeringVector = rl.Vector2Add(avgSteeringVector, vec)
+		}
+
+		boid.Acceleration = rl.Vector2Scale(
+			avgSteeringVector,
+			1.0/float32(amountSteeringVecs),
+		)
+	}
+	// Remove all applied steering vectors
+	boid.SteeringVectors = boid.SteeringVectors[:0]
+
 	boid.Velocity = rl.Vector2Add(boid.Velocity, boid.Acceleration)
 
 	// Smoothly de-accelerate towards velocity limit
@@ -54,27 +73,7 @@ func (boid *Boid) Update(flock []*Boid) {
 		boid.Velocity = rl.Vector2MoveTowards(boid.Velocity, target, step)
 	}
 
-	boid.FindLocalFlock(flock)
-
-	boid.align(boid.avgVelocity())
-
-	// Only steer boid if steering vectors are applied
-	amountSteeringVecs := len(boid.SteeringVectors)
-	if amountSteeringVecs != 0 {
-		avgSteeringVector := rl.Vector2Zero()
-
-		for _, vec := range boid.SteeringVectors {
-			avgSteeringVector = rl.Vector2Add(avgSteeringVector, vec)
-		}
-
-		boid.Acceleration = rl.Vector2Scale(
-			avgSteeringVector,
-			1.0/float32(amountSteeringVecs),
-		)
-
-		// Remove all applied steering vectors
-		boid.SteeringVectors = boid.SteeringVectors[:0]
-	}
+	boid.CurPos = rl.Vector2Add(boid.CurPos, boid.Velocity)
 
 	boid.wrap(10.0)
 }
