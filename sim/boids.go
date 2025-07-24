@@ -41,26 +41,6 @@ func NewBoid() *Boid {
 	return &newBoid
 }
 
-func (boid *Boid) DrawPerceptionField(color rl.Color) {
-	// Total visible angle: 360° - blind spot
-	visibleAngle := 360.0 - BlindSpotAngle
-
-	// Start the arc centered around boid's facing angle
-	boidAngleRad := math.Atan2(float64(boid.Velocity.Y), float64(boid.Velocity.X))
-	boidAngleDeg := boidAngleRad * rl.Rad2deg
-
-	startAngle := boidAngleDeg - visibleAngle/2
-
-	rl.DrawCircleSectorLines(
-		boid.CurPos,
-		PerceptionRadius,
-		float32(startAngle),
-		float32(startAngle+visibleAngle),
-		60,
-		color,
-	)
-}
-
 func (boid *Boid) Update(flock []*Boid) {
 	boid.FindLocalFlock(flock)
 	boid.align(boid.avgVelocity())
@@ -171,6 +151,26 @@ func (boid *Boid) align(avgVelocity rl.Vector2) {
 		steeringVec := rl.Vector2Subtract(avgVelocity, boid.Velocity)
 		boid.SteeringVectors = append(boid.SteeringVectors, steeringVec)
 	}
+}
+
+func (boid *Boid) DrawPerceptionField(color rl.Color) {
+	// Total visible angle: 360° - blind spot
+	visibleAngle := 360.0 - BlindSpotAngle
+
+	// Start the arc centered around boid's facing angle
+	boidAngleRad := math.Atan2(float64(boid.Velocity.Y), float64(boid.Velocity.X))
+	boidAngleDeg := boidAngleRad * rl.Rad2deg
+
+	startAngle := boidAngleDeg - visibleAngle/2
+
+	rl.DrawCircleSectorLines(
+		boid.CurPos,
+		PerceptionRadius,
+		float32(startAngle),
+		float32(startAngle+visibleAngle),
+		60,
+		color,
+	)
 }
 
 func (boid Boid) Draw(offset float32, color rl.Color) {
