@@ -31,7 +31,7 @@ func NewBoid() *Boid {
 		float32(math.Cos(float64(randAngle))),
 		float32(math.Sin(float64(randAngle))),
 	)
-	speed := randRange(0.1, VelocityLimit)
+	speed := randRange(MinVelocity, VelocityLimit)
 
 	newBoid := Boid{
 		CurPos:   randPos,
@@ -161,7 +161,7 @@ func (boid *Boid) cohesion(avgPosition rl.Vector2)  {
 		steeringVec := rl.Vector2Subtract(avgPosition, boid.CurPos)
 
 		// Prevent cohesion from overwhelming other vectors
-		steeringVec = rl.Vector2ClampValue(steeringVec, 0.1, VelocityLimit/1.5)
+		steeringVec = rl.Vector2ClampValue(steeringVec, MinVelocity, VelocityLimit/1.5)
 		boid.SteeringVectors = append(boid.SteeringVectors, steeringVec)
 	}
 }

@@ -6,6 +6,7 @@ const (
 
 	BlindSpotAngle   = 60
 	PerceptionRadius = 50
+	MinVelocity      = 0.1
 	VelocityLimit    = 3
 	DampingFactor    = 0.1
 
