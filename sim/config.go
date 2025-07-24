@@ -9,6 +9,6 @@ const (
 	VelocityLimit    = 3
 	DampingFactor    = 0.1
 
-	TotalFlockSize = 100
+	TotalFlockSize = 250
 	BoidSize       = 7
 )

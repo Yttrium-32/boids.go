@@ -76,20 +76,20 @@ func (boid *Boid) Update(flock []*Boid) {
 		boid.SteeringVectors = boid.SteeringVectors[:0]
 	}
 
-	boid.wrap()
+	boid.wrap(10.0)
 }
 
-func (boid *Boid) wrap() {
+func (boid *Boid) wrap(padding float32) {
 	if boid.CurPos.X > WindowWidth {
-		boid.CurPos.X -= WindowWidth
+		boid.CurPos.X -= WindowWidth + padding
 	} else if boid.CurPos.X < 0 {
-		boid.CurPos.X += WindowWidth
+		boid.CurPos.X += WindowWidth + padding
 	}
 
 	if boid.CurPos.Y > WindowHeight {
-		boid.CurPos.Y -= WindowHeight
+		boid.CurPos.Y -= WindowHeight + padding
 	} else if boid.CurPos.Y < 0 {
-		boid.CurPos.Y += WindowHeight
+		boid.CurPos.Y += WindowHeight + padding
 	}
 }
 
