@@ -11,4 +11,6 @@ const (
 
 	TotalFlockSize = 250
 	BoidSize       = 7
+
+	Debug = false
 )
