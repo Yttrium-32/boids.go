@@ -1,7 +1,10 @@
 package main
 
-import rl "github.com/gen2brain/raylib-go/raylib"
-import "boids/sim"
+import (
+	"boids/sim"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
+)
 
 func main() {
 	rl.InitWindow(sim.WindowWidth, sim.WindowHeight, "Boid Simulation")

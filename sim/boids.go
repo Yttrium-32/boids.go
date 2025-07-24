@@ -12,7 +12,7 @@ type Boid struct {
 	Velocity     rl.Vector2
 	Acceleration rl.Vector2
 
-	LocalFlock      []Boid
+	LocalFlock      []*Boid
 	SteeringVectors []rl.Vector2
 }
 
@@ -94,6 +94,9 @@ func (boid *Boid) wrap() {
 }
 
 func (boid *Boid) FindLocalFlock(flock []*Boid) {
+	// Remove all references before re-calculating local flock
+	boid.LocalFlock = boid.LocalFlock[:0]
+
 	for _, other_boid := range flock {
 		if boid == other_boid {
 			continue
@@ -107,7 +110,7 @@ func (boid *Boid) FindLocalFlock(flock []*Boid) {
 		is_visible := angle_to_other_boid < BlindSpotAngle || angle_to_other_boid > 360-BlindSpotAngle
 
 		if is_visible {
-			boid.LocalFlock = append(boid.LocalFlock, *other_boid)
+			boid.LocalFlock = append(boid.LocalFlock, other_boid)
 		}
 	}
 }
